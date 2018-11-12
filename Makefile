@@ -1,9 +1,11 @@
+ROOT = ~/Code/fast-ai-dl1
 ZONE = us-west1-b
 DEPLOYMENT_NAME = fast-ai
 PROJECT = rl-engine
 
 
-start:
+
+lab:
 	gcloud compute instances start --project ${PROJECT} --zone ${ZONE} ${DEPLOYMENT_NAME}-vm
 
 list:
@@ -11,9 +13,10 @@ list:
 
 update:
 	gcloud compute scp --project ${PROJECT} --zone ${ZONE} setup.ipynb jupyter@${DEPLOYMENT_NAME}-vm:~/
-	gcloud compute scp --project ${PROJECT} --zone ${ZONE} kaggle.json jupyter@${DEPLOYMENT_NAME}-vm:~/
+	gcloud compute scp --project ${PROJECT} --zone ${ZONE} kaggle.json jupyter@${DEPLOYMENT_NAME}-vm:~/.kaggle/
 
-lab:
+
+connect:
 	xdg-open http://localhost:8080
 	gcloud compute ssh --project ${PROJECT} --zone ${ZONE} ${DEPLOYMENT_NAME}-vm -- -L 8080:localhost:8080
 
@@ -29,10 +32,13 @@ stop:
 delete:
 	gcloud compute instances delete --project ${PROJECT} --zone ${ZONE} ${DEPLOYMENT_NAME}-vm
 
-
 gpumon:
 	gcloud compute ssh --project ${PROJECT} --zone ${ZONE} ${DEPLOYMENT_NAME}-vm \
-	--command "nvidia-smi -l 5"
+	--command "nvidia-smi -l 1"
+
+mem:
+	gcloud compute ssh --project ${PROJECT} --zone ${ZONE} ${DEPLOYMENT_NAME}-vm \
+	--command "free -m"
 
 default:
 	gcloud config set project --zone ${ZONE} ${PROJECT}
