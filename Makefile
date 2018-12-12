@@ -1,9 +1,17 @@
 ROOT = ~/Code/fast-ai-dl1
 ZONE = us-west1-b
 DEPLOYMENT_NAME = fast-ai
-PROJECT = rl-engine
+PROJECT = fast-aing
+IMAGE_FAMILY = pytorch-latest-cu92
 
-
+deploy:
+	gcloud compute instances create ${DEPLOYMENT_NAME}-vm \
+	--zone=${ZONE} \
+	--image-family=${IMAGE_FAMILY} \
+	--image-project=deeplearning-platform-release \
+	--maintenance-policy=TERMINATE \
+	--accelerator="type=nvidia-tesla-k80,count=1" \
+	--metadata="install-nvidia-driver=True"
 
 lab:
 	gcloud compute instances start --project ${PROJECT} --zone ${ZONE} ${DEPLOYMENT_NAME}-vm
@@ -14,7 +22,6 @@ list:
 update:
 	gcloud compute scp --project ${PROJECT} --zone ${ZONE} setup.ipynb jupyter@${DEPLOYMENT_NAME}-vm:~/
 	gcloud compute scp --project ${PROJECT} --zone ${ZONE} kaggle.json jupyter@${DEPLOYMENT_NAME}-vm:~/.kaggle/
-
 
 connect:
 	xdg-open http://localhost:8080
@@ -44,7 +51,7 @@ default:
 	gcloud config set project --zone ${ZONE} ${PROJECT}
 
 
-# still using ipynb for most of this
+# still using the setup.ipynb for most of this stuff belowg
 
 repo:
 	gcloud compute ssh jupyter@${DEPLOYMENT_NAME}-vm --zone ${ZONE}\
