@@ -12,10 +12,10 @@ start: default
 	gcloud compute instances start --zone ${ZONE} ${DEPLOYMENT_NAME}-vm
 
 connect: default
-	xdg-open http://localhost:8080
 	gcloud compute ssh --zone ${ZONE} ${DEPLOYMENT_NAME}-vm -- -L 8080:localhost:8080
 
 lab: start connect
+	xdg-open http://localhost:8080
 
 stop: default
 	gcloud compute instances stop --zone ${ZONE} ${DEPLOYMENT_NAME}-vm
@@ -52,8 +52,7 @@ jshell:
 delete:
 	gcloud compute instances delete --project ${PROJECT} --zone ${ZONE} ${DEPLOYMENT_NAME}-vm
 
-
-list:
+ilist:
 	gcloud compute instances list
 
 gpumon:

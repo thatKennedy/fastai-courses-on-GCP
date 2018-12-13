@@ -2,9 +2,9 @@
 CONDA="/opt/anaconda3/bin/conda"
 # name is taken from the environoment.yml file
 ENV="fastai"
-PYTHON_ENV = /opt/anaconda3/envs/$ENV/bin/python
+PYTHON_ENV="/opt/anaconda3/envs/fastai/bin/python"
 
-/opt/anaconda3/bin/conda update conda -y
+$CONDA update conda -y
 
 if [ ! -d fastai ] ; then
     git clone https://github.com/fastai/fastai.git
