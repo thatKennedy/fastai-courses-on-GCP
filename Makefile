@@ -4,7 +4,34 @@ DEPLOYMENT_NAME = fast-ai
 PROJECT = fast-aing
 IMAGE_FAMILY = pytorch-latest-cu92
 
-deploy:
+
+default:
+	gcloud config set project ${PROJECT}
+
+start: default
+	gcloud compute instances start --zone ${ZONE} ${DEPLOYMENT_NAME}-vm
+
+connect: default
+	xdg-open http://localhost:8080
+	gcloud compute ssh --zone ${ZONE} ${DEPLOYMENT_NAME}-vm -- -L 8080:localhost:8080
+
+lab: start connect
+
+stop: default
+	gcloud compute instances stop --zone ${ZONE} ${DEPLOYMENT_NAME}-vm
+
+setup: default
+	gcloud compute scp --zone=${ZONE} kaggle.json jupyter@${DEPLOYMENT_NAME}-vm:~/
+	gcloud compute scp --zone=${ZONE} setup.sh jupyter@${DEPLOYMENT_NAME}-vm:~/
+	gcloud compute ssh --zone=${ZONE} jupyter@${DEPLOYMENT_NAME}-vm --command "chmod +x setup.sh"
+	gcloud compute ssh --zone=${ZONE} jupyter@${DEPLOYMENT_NAME}-vm --command "./setup.sh"
+
+data: default
+	gcloud compute scp --zone=${ZONE} get-data.sh jupyter@${DEPLOYMENT_NAME}-vm:~/
+	gcloud compute ssh --zone=${ZONE} jupyter@${DEPLOYMENT_NAME}-vm --command "chmod +x get-data.sh"
+	gcloud compute ssh --zone=${ZONE} jupyter@${DEPLOYMENT_NAME}-vm --command "./get-data.sh"
+
+deploy: default
 	gcloud compute instances create ${DEPLOYMENT_NAME}-vm \
 	--zone=${ZONE} \
 	--image-family=${IMAGE_FAMILY} \
@@ -13,19 +40,8 @@ deploy:
 	--accelerator="type=nvidia-tesla-k80,count=1" \
 	--metadata="install-nvidia-driver=True"
 
-lab:
-	gcloud compute instances start --project ${PROJECT} --zone ${ZONE} ${DEPLOYMENT_NAME}-vm
-
-list:
-	gcloud compute instances list
-
 update:
 	gcloud compute scp --project ${PROJECT} --zone ${ZONE} setup.ipynb jupyter@${DEPLOYMENT_NAME}-vm:~/
-	gcloud compute scp --project ${PROJECT} --zone ${ZONE} kaggle.json jupyter@${DEPLOYMENT_NAME}-vm:~/.kaggle/
-
-connect:
-	xdg-open http://localhost:8080
-	gcloud compute ssh --project ${PROJECT} --zone ${ZONE} ${DEPLOYMENT_NAME}-vm -- -L 8080:localhost:8080
 
 shell:
 	gcloud compute ssh --project ${PROJECT} --zone ${ZONE} ${DEPLOYMENT_NAME}-vm
@@ -33,11 +49,12 @@ shell:
 jshell:
 	gcloud compute ssh --project ${PROJECT} --zone ${ZONE} jupyter@${DEPLOYMENT_NAME}-vm
 
-stop:
-	gcloud compute instances stop --project ${PROJECT} --zone ${ZONE} ${DEPLOYMENT_NAME}-vm
-
 delete:
 	gcloud compute instances delete --project ${PROJECT} --zone ${ZONE} ${DEPLOYMENT_NAME}-vm
+
+
+list:
+	gcloud compute instances list
 
 gpumon:
 	gcloud compute ssh --project ${PROJECT} --zone ${ZONE} ${DEPLOYMENT_NAME}-vm \
@@ -46,21 +63,3 @@ gpumon:
 mem:
 	gcloud compute ssh --project ${PROJECT} --zone ${ZONE} ${DEPLOYMENT_NAME}-vm \
 	--command "free -m"
-
-default:
-	gcloud config set project --zone ${ZONE} ${PROJECT}
-
-
-# still using the setup.ipynb for most of this stuff belowg
-
-repo:
-	gcloud compute ssh jupyter@${DEPLOYMENT_NAME}-vm --zone ${ZONE}\
-	 --command "if [ ! -d fastai ] ; thengit clone https://github.com/fastai/fastai fi\
-	 cd fastai
-	 git pull
-	 cd .."
-
-
-env:
-	gcloud compute ssh ${DEPLOYMENT_NAME}-vm --zone ${ZONE} \
-	--command "conda env update -n base -f ../jupyter/fastai/environment.yml"
