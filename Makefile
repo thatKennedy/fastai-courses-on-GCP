@@ -3,7 +3,8 @@ ZONE = us-west1-b
 DEPLOYMENT_NAME = fast-ai
 PROJECT = fast-aing
 IMAGE_FAMILY = pytorch-latest-cu92
-
+ENV=fastai
+PYTHON_ENV = /opt/anaconda3/envs/fastai/bin/python
 
 default:
 	gcloud config set project ${PROJECT}
@@ -20,11 +21,15 @@ lab: start connect
 stop: default
 	gcloud compute instances stop --zone ${ZONE} ${DEPLOYMENT_NAME}-vm
 
-setup: default
+scp: default
 	gcloud compute scp --zone=${ZONE} kaggle.json jupyter@${DEPLOYMENT_NAME}-vm:~/
-	gcloud compute scp --zone=${ZONE} setup.sh jupyter@${DEPLOYMENT_NAME}-vm:~/
-	gcloud compute ssh --zone=${ZONE} jupyter@${DEPLOYMENT_NAME}-vm --command "chmod +x setup.sh"
-	gcloud compute ssh --zone=${ZONE} jupyter@${DEPLOYMENT_NAME}-vm --command "./setup.sh"
+	gcloud compute scp --zone=${ZONE} Makefile jupyter@${DEPLOYMENT_NAME}-vm:~/
+
+env:
+	conda update conda -y
+	cd ~/fastai; conda env create -f environment.yml
+	conda install ipykernel -n ${ENV} -y
+	${PYTHON_ENV} -m ipykernel install --user --name myenv --display-name "Python (${ENV})"
 
 data: default
 	gcloud compute scp --zone=${ZONE} get-data.sh jupyter@${DEPLOYMENT_NAME}-vm:~/
@@ -40,8 +45,8 @@ deploy: default
 	--accelerator="type=nvidia-tesla-k80,count=1" \
 	--metadata="install-nvidia-driver=True"
 
-update:
-	gcloud compute scp --project ${PROJECT} --zone ${ZONE} setup.ipynb jupyter@${DEPLOYMENT_NAME}-vm:~/
+clone:
+	git clone https://github.com/fastai/fastai.git
 
 shell:
 	gcloud compute ssh --project ${PROJECT} --zone ${ZONE} ${DEPLOYMENT_NAME}-vm
