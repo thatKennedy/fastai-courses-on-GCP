@@ -1,4 +1,8 @@
 
+TODO: setup on kubeflow
+TODO: data for other notebooks
+TODO: add screenshots to readme
+
 
 https://forums.fast.ai/t/fastai-v0-7-install-issues-thread/24652 
 
