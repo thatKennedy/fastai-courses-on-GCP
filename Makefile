@@ -1,7 +1,8 @@
-ROOT = ~/Code/fast-ai-dl1
-ZONE = us-west1-b
-DEPLOYMENT_NAME = fast-ai
 PROJECT = fast-aing
+ZONE = us-west1-b
+MACHINE_TYPE = n1-standard-8
+ACCELERATOR = type=nvidia-tesla-k80,count=1
+DEPLOYMENT_NAME = fast-ai
 IMAGE_FAMILY = pytorch-latest-cu92
 ENV=fastai
 PYTHON_ENV = /opt/anaconda3/envs/fastai/bin/python
@@ -43,10 +44,11 @@ data: default
 deploy: default
 	gcloud compute instances create ${DEPLOYMENT_NAME}-vm \
 	--zone=${ZONE} \
+	--machine-type=${MACHINE_TYPE} \
 	--image-family=${IMAGE_FAMILY} \
 	--image-project=deeplearning-platform-release \
 	--maintenance-policy=TERMINATE \
-	--accelerator="type=nvidia-tesla-k80,count=1" \
+	--accelerator="${ACCELERATOR}" \
 	--metadata="install-nvidia-driver=True"
 
 
