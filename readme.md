@@ -17,7 +17,7 @@ https://forums.fast.ai/t/fastai-v0-7-install-issues-thread/24652
 1. Open your preferred browser for jupyter lab and go to 8080:localhost:8080
 1. Open a new terminal window in this directory (so as a local user), then run
     1. `make scp`
-1. Open a terminal window in jupyter lab (so as jupyter user), then run
+1. Open a terminal window in jupyter lab (so as remote jupyter user), then run
     1. `make setup`
 1. you now can run the lesson #1 notebook: fastai/courses/dl1/ via juptyer lab
 1. you will need to change the kernel from the default to the fastai environment
