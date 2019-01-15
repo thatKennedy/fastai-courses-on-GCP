@@ -1,7 +1,6 @@
 
-TODO: setup on kubeflow and TPUs
-TODO: data for other notebooks
-TODO: add screenshots to readme
+* TODO: data for other notebooks
+* TODO: add screenshots to readme
 
 
 https://course.fast.ai/lessons/lesson1.html
