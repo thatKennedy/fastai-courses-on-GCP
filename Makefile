@@ -1,9 +1,10 @@
 PROJECT = fast-aing
 ZONE = us-west1-b
 MACHINE_TYPE = n1-standard-8
-ACCELERATOR = type=nvidia-tesla-k80,count=1
+ACCELERATOR = type=nvidia-tesla-v100,count=1
 DEPLOYMENT_NAME = fast-ai
 IMAGE_FAMILY = pytorch-latest-cu92
+BOOT_DISK_SIZE = 100GB
 ENV=fastai
 PYTHON_ENV = /opt/anaconda3/envs/fastai/bin/python
 
@@ -35,11 +36,21 @@ env:
 	cd ~/fastai; conda env create -f environment.yml
 	conda install ipykernel -n ${ENV} -y
 	${PYTHON_ENV} -m ipykernel install --user --name myenv --display-name "Python (${ENV})"
+	${PYTHON_ENV} -m spacy download en
 
-data: default
+
+data: datadir dogscats imdb
+
+datadir: default
 	mkdir data
-	cd ~/data ; wget http://files.fast.ai/data/dogscats.zip; unzip -q dogscats.zip
 	cd ~/fastai/courses/dl1/; ln -s ~/data ./
+
+dogscats:
+	cd ~/data ; wget http://files.fast.ai/data/dogscats.zip; unzip -q dogscats.zip
+
+imdb:
+	cd ~/data ; wget http://files.fast.ai/data/aclImdb.tgz; tar -xvzf aclImdb.tgz
+	cd ~/data/aclImdb; mkdir models
 
 deploy: default
 	gcloud compute instances create ${DEPLOYMENT_NAME}-vm \
@@ -47,6 +58,7 @@ deploy: default
 	--machine-type=${MACHINE_TYPE} \
 	--image-family=${IMAGE_FAMILY} \
 	--image-project=deeplearning-platform-release \
+	--boot-disk-size=${BOOT_DISK_SIZE} \
 	--maintenance-policy=TERMINATE \
 	--accelerator="${ACCELERATOR}" \
 	--metadata="install-nvidia-driver=True"
