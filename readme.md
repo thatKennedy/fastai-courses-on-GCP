@@ -2,6 +2,13 @@
 
 https://forums.fast.ai/t/fastai-v0-7-install-issues-thread/24652 
 
+
+* following: https://course.fast.ai/start_gcp.html
+* Port forward from sudo user to get jupter lab. port forward from jupyter user gives notebook
+* add instructions on installing awscli and boto3 on GCP server
+
+
+
 1. install Make and gcloud commandline tools
 1. create Google cloud account and project
 1. Go to https://console.cloud.google.com/iam-admin/quotas?
