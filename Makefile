@@ -11,11 +11,10 @@ default:
 start: default
 	gcloud compute instances start --zone ${ZONE} ${INSTANCE_NAME}
 
-connect: default
+lab: default
 	xdg-open http://localhost:8080
 	gcloud compute ssh --zone ${ZONE} ${INSTANCE_NAME} -- -L 8080:localhost:8080
 
-lab: start connect
 
 stop: default
 	gcloud compute instances stop --zone ${ZONE} ${INSTANCE_NAME}
